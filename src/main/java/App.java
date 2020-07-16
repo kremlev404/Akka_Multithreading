@@ -1,18 +1,33 @@
+import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.AbstractBehavior;
+import akka.actor.typed.javadsl.ActorContext;
 
-import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Scanner;
+import java.util.UUID;
+import java.util.function.IntSupplier;
+
 
 public class App  {
 
-    public static void main(String[] args) {
-        //Должно запускаться так, но пока без акторов
-        /*
-        ActorSystem<RequestActor.Command> mySystem =
-                ActorSystem.create(RequestActor.create(),"MySystem");
-        */
+    public static void main(String[] args) throws InterruptedException {
 
-        Printer.print();
+        RequestActor.SendRequset();
+
+        //ActorSystem.create(App.create(), "Main");
+
+        /*
+        Scanner sc = new Scanner(System.in);
+        while(true) {
+            String str = sc.next();
+            // Exit if q pressed
+            if("q".equals(str)) {
+                system.tell(poisonPill());
+                return;
+            }
+            worker.tell(1);
+        }
+        */
 
         //HelloWorld Setup comments
         /*
@@ -24,8 +39,5 @@ public class App  {
         mySystem.tell(HellowWorld.SayHello.INSTANCE);
         //mySystem.tell(HellowWorld.SayHello.INSTANCE);
         */
-
-
     }
-
 }
