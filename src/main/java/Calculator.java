@@ -9,7 +9,5 @@ public class Calculator {
         leibnic_hand.calculate(load);
         monte_hand.calculate(load);
 
-        monte_hand.refresh();
-        leibnic_hand.refresh();
     }
 }
