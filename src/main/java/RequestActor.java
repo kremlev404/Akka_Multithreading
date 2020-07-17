@@ -1,12 +1,3 @@
-import akka.actor.typed.Behavior;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.Receive;
-
-import java.util.ArrayDeque;
-import java.util.Random;
-
 public class RequestActor {
     /*
         //class fields
@@ -41,10 +32,10 @@ public class RequestActor {
         int a = 1;
         int b  = 3;
         while(true){
-            //Random random = new Random();
+
             load_priority = (int) ((Math.random() * ((b - a) + 1)) + a);
-            System.out.println("load_priority: " + load_priority);
-            Printer.print(load_priority);
+
+            Calculator.start(load_priority);
         }
     }
     /*
