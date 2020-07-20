@@ -76,7 +76,8 @@ public class PiCalculator extends AbstractBehavior<PiCalculator.Command> {
     //
     private Behavior<Command> onStartCalc(){
         //
-        while (countEnd-->0) {
+        int i =0;
+        while (true) {
             try {
                 Thread.sleep(dt);
             } catch (InterruptedException e) {
@@ -85,7 +86,6 @@ public class PiCalculator extends AbstractBehavior<PiCalculator.Command> {
             }
 
             //
-            int i =0;
 
             //Pi calculating by Monte
             switch (numArray.get(i)) {
@@ -145,7 +145,7 @@ public class PiCalculator extends AbstractBehavior<PiCalculator.Command> {
             i++;
 
         }
-        return this;
+        //return this;
     }
 
     //Monte help method

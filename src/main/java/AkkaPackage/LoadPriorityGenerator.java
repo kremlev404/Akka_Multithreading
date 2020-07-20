@@ -75,7 +75,7 @@ public class LoadPriorityGenerator extends AbstractBehavior<LoadPriorityGenerato
         int diff = b - a;
 
         //
-        while (countEnd-->0) {
+        while (true) {
 
             //
             try {
@@ -95,7 +95,7 @@ public class LoadPriorityGenerator extends AbstractBehavior<LoadPriorityGenerato
             replyTo.tell(new PiCalculator.PiCalc(numArray));
             replyTo.tell(PiCalculator.PiCalculatorCommand.START_CALC);
         }
-        return this;
+        //return this;
     }
 
 }
