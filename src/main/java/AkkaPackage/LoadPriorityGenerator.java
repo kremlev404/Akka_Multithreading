@@ -75,7 +75,13 @@ public class LoadPriorityGenerator extends AbstractBehavior<LoadPriorityGenerato
         int diff = b - a;
 
         //
-        while (countEnd-->0) {
+        Random random = new Random();
+        int load_priority = random.nextInt(diff + 1);
+        load_priority += a;
+        numArray.add(load_priority);
+
+        //
+        while (true) {
 
             //
             try {
@@ -85,17 +91,21 @@ public class LoadPriorityGenerator extends AbstractBehavior<LoadPriorityGenerato
                 e.printStackTrace();
             }
 
-            //
-            Random random = new Random();
-            int load_priority = random.nextInt(diff + 1);
-            load_priority += a;
+            //generate uniq load_priority
+            while (numArray.get(i) == load_priority){
+                load_priority = random.nextInt(diff + 1);
+                load_priority += a;
+            }
+
+            //add to numlist
             numArray.add(load_priority);
             getContext().getLog().info(" Gen new priority: {}", numArray.get(i));
             i++;
+            //replyTo.tell(new PiCalculator.PiCalc(load_priority));
             replyTo.tell(new PiCalculator.PiCalc(numArray));
             replyTo.tell(PiCalculator.PiCalculatorCommand.START_CALC);
         }
-        return this;
+        //return this;
     }
 
 }
