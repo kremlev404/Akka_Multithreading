@@ -16,7 +16,7 @@ public class Init extends AbstractBehavior<Init.Command> {
     private String message = "Initiation started";
     //Load Priority Actor
     private final ActorRef<LoadPriorityGenerator.Command> loadGen;
-    //Pi calculating Actor
+    //Pi calculating Actor's
     private final List<ActorRef<PiCalculator.Command>> piCalc;
 
     //interface
@@ -27,7 +27,6 @@ public class Init extends AbstractBehavior<Init.Command> {
     public enum InitCommand implements Command {
         INIT,
         START_GEN,
-        //START_CALC
     }
 
     //Command implementing
@@ -45,6 +44,7 @@ public class Init extends AbstractBehavior<Init.Command> {
         super(context);
         ActorRef<ConsolePrinter.Command> printer = context.spawn(ConsolePrinter.create(), "Printer");
         loadGen = context.spawn(LoadPriorityGenerator.create(6), "LoadPriorityGenerator");
+        //spawn 3 actors to calculate each pi with different loadpriority
         piCalc = new ArrayList<>() {{
             add(context.spawn(PiCalculator.create(printer), "PiCalculator"));
             add(context.spawn(PiCalculator.create(printer), "PiCalculator2"));
@@ -85,13 +85,4 @@ public class Init extends AbstractBehavior<Init.Command> {
         loadGen.tell(new LoadPriorityGenerator.LoadPriority(piCalc));
         return this;
     }
-/*
-    //
-    private Behavior<Command> onStartCalc(){
-        piCalc.tell(PiCalculator.PiCalculatorCommand.INIT);
-        piCalc.tell(PiCalculator.PiCalculatorCommand.START_CALC);
-        return this;
-    }
-*/
-
 }
