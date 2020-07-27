@@ -7,6 +7,9 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Init extends AbstractBehavior<Init.Command> {
 
     //
@@ -14,16 +17,17 @@ public class Init extends AbstractBehavior<Init.Command> {
     //Load Priority Actor
     private final ActorRef<LoadPriorityGenerator.Command> loadGen;
     //Pi calculating Actor
-    private final ActorRef<PiCalculator.Command> piCalc;
+    private final List<ActorRef<PiCalculator.Command>> piCalc;
 
     //interface
-    interface Command{}
+    interface Command {
+    }
 
     //
-    public enum InitCommand implements Command{
+    public enum InitCommand implements Command {
         INIT,
         START_GEN,
-        START_CALC
+        //START_CALC
     }
 
     //Command implementing
@@ -35,53 +39,59 @@ public class Init extends AbstractBehavior<Init.Command> {
             this.newMessage = newMessage;
         }
     }
-    
+
     // Constructor
     private Init(ActorContext<Command> context) {
         super(context);
-        loadGen = context.spawn(LoadPriorityGenerator.create(), "LoadPriorityGenerator");
-        piCalc = context.spawn(PiCalculator.create(), "PiCalculator");
+        ActorRef<ConsolePrinter.Command> printer = context.spawn(ConsolePrinter.create(), "Printer");
+        loadGen = context.spawn(LoadPriorityGenerator.create(6), "LoadPriorityGenerator");
+        piCalc = new ArrayList<>() {{
+            add(context.spawn(PiCalculator.create(printer), "PiCalculator"));
+            add(context.spawn(PiCalculator.create(printer), "PiCalculator2"));
+            add(context.spawn(PiCalculator.create(printer), "PiCalculator3"));
+        }};
     }
 
     // Fabric method
-    public static Behavior<Command> create(){
+    public static Behavior<Command> create() {
         return Behaviors.setup(context -> new Init(context));
     }
-    
+
     //
     @Override
-    public Receive<Command> createReceive(){
+    public Receive<Command> createReceive() {
         return newReceiveBuilder()
-                .onMessageEquals(InitCommand.INIT,this::onSay)
-                .onMessageEquals(InitCommand.START_GEN,this::onStartGen)
-                .onMessageEquals(InitCommand.START_CALC,this::onStartCalc)
+                .onMessageEquals(InitCommand.INIT, this::onSay)
+                .onMessageEquals(InitCommand.START_GEN, this::onStartGen)
                 .onMessage(ChangeMessage.class, this::onChangeMessage)
+                //.onMessageEquals(InitCommand.START_CALC,this::onStartCalc)
                 .build();
     }
 
     //
-    private Behavior<Command> onChangeMessage(ChangeMessage command){
+    private Behavior<Command> onChangeMessage(ChangeMessage command) {
         message = command.newMessage;
         return this;
     }
 
     // 
-    private Behavior<Command> onSay(){
+    private Behavior<Command> onSay() {
         getContext().getLog().info(message);
         return this;
     }
 
     //
-    private Behavior<Command> onStartGen(){
+    private Behavior<Command> onStartGen() {
         loadGen.tell(new LoadPriorityGenerator.LoadPriority(piCalc));
         return this;
     }
-
+/*
     //
     private Behavior<Command> onStartCalc(){
         piCalc.tell(PiCalculator.PiCalculatorCommand.INIT);
         piCalc.tell(PiCalculator.PiCalculatorCommand.START_CALC);
         return this;
     }
+*/
 
 }

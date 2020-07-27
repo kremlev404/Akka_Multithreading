@@ -13,7 +13,9 @@ import akka.actor.typed.javadsl.Receive;
 public class LoadPriorityGenerator extends AbstractBehavior<LoadPriorityGenerator.Command> {
 
     //
-    private ActorRef<PiCalculator.Command> replyTo;
+
+    //private ActorRef<PiCalculator.Command> replyTo;
+
     public static int load_priority = 1;
     private List<Integer> numArray = new ArrayList<Integer>();
     private long dt = 1000;
@@ -31,9 +33,9 @@ public class LoadPriorityGenerator extends AbstractBehavior<LoadPriorityGenerato
     //
     public static class LoadPriority implements Command {
         //
-        public final ActorRef<PiCalculator.Command> replyTo;
+        public final List<ActorRef<PiCalculator.Command>> replyTo;
         //
-        public LoadPriority(ActorRef<PiCalculator.Command> replyTo) {
+        public LoadPriority(List<ActorRef<PiCalculator.Command>> replyTo) {
             super();
             this.replyTo = replyTo;
         }
@@ -46,7 +48,7 @@ public class LoadPriorityGenerator extends AbstractBehavior<LoadPriorityGenerato
     }
 
     //
-    public static Behavior<Command> create(){
+    public static Behavior<Command> create(int i){
         return Behaviors.setup(context -> new LoadPriorityGenerator(context));
     }
 
@@ -68,7 +70,7 @@ public class LoadPriorityGenerator extends AbstractBehavior<LoadPriorityGenerato
     private Behavior<Command> onStartGen(LoadPriority command){
 
         //
-        replyTo = command.replyTo;
+        //replyTo = command.replyTo;
         int i=0;
         int a = 1;
         int b  = 3;
@@ -102,8 +104,12 @@ public class LoadPriorityGenerator extends AbstractBehavior<LoadPriorityGenerato
             getContext().getLog().info(" Gen new priority: {}", numArray.get(i));
             i++;
             //replyTo.tell(new PiCalculator.PiCalc(load_priority));
-            replyTo.tell(new PiCalculator.PiCalc(numArray));
-            replyTo.tell(PiCalculator.PiCalculatorCommand.START_CALC);
+            List<ActorRef<PiCalculator.Command>> replyTo = command.replyTo;
+            for (int i1 = 0; i1 < replyTo.size(); i1++) {
+                ActorRef<PiCalculator.Command> commandActorRef = replyTo.get(i1);
+                commandActorRef.tell(new PiCalculator.PiCalc(i1+1));
+            }
+            //command.replyTo.forEach(actor -> actor.tell(PiCalculator.PiCalculatorCommand.START_CALC));
         }
         //return this;
     }
