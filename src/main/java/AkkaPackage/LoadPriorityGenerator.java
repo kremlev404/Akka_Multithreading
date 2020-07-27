@@ -1,32 +1,23 @@
 package AkkaPackage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import lombok.SneakyThrows;
+
+import java.util.List;
 
 public class LoadPriorityGenerator extends AbstractBehavior<LoadPriorityGenerator.Command> {
 
     //
-
-    //private ActorRef<PiCalculator.Command> replyTo;
-
-    public static int load_priority = 1;
-    private List<Integer> numArray = new ArrayList<Integer>();
-    private long dt = 1000;
-    private int startNum = 0;
-    private int countEnd = 10;
+    interface Command {
+    }
 
     //
-    interface Command{}
-
-    //
-    public enum LoadPriorityGeneratorCommand implements Command{
+    public enum LoadPriorityGeneratorCommand implements Command {
         INIT,
     }
 
@@ -34,12 +25,13 @@ public class LoadPriorityGenerator extends AbstractBehavior<LoadPriorityGenerato
     public static class LoadPriority implements Command {
         //
         public final List<ActorRef<PiCalculator.Command>> replyTo;
+
         //
         public LoadPriority(List<ActorRef<PiCalculator.Command>> replyTo) {
             super();
             this.replyTo = replyTo;
         }
-        
+
     }
 
     //
@@ -48,70 +40,41 @@ public class LoadPriorityGenerator extends AbstractBehavior<LoadPriorityGenerato
     }
 
     //
-    public static Behavior<Command> create(int i){
-        return Behaviors.setup(context -> new LoadPriorityGenerator(context));
+    public static Behavior<Command> create(int i) {
+        return Behaviors.setup(LoadPriorityGenerator::new);
     }
 
     @Override
-    public Receive<Command> createReceive(){
+    public Receive<Command> createReceive() {
         return newReceiveBuilder()
-                .onMessageEquals(LoadPriorityGeneratorCommand.INIT,this::onSay)
+                .onMessageEquals(LoadPriorityGeneratorCommand.INIT, this::onSay)
                 .onMessage(LoadPriority.class, this::onStartGen)
                 .build();
     }
 
     //
-    private Behavior<Command> onSay(){
+    private Behavior<Command> onSay() {
         getContext().getLog().info("LoadPriorityGenerator Actor");
         return this;
     }
 
     //
-    private Behavior<Command> onStartGen(LoadPriority command){
-
-        //
-        //replyTo = command.replyTo;
-        int i=0;
-        int a = 1;
-        int b  = 3;
-        int diff = b - a;
-
-        //
-        Random random = new Random();
-        int load_priority = random.nextInt(diff + 1);
-        load_priority += a;
-        numArray.add(load_priority);
+    @SneakyThrows
+    private Behavior<Command> onStartGen(LoadPriority command) {
 
         //
         while (true) {
 
             //
-            try {
-                Thread.sleep(dt);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            Thread.sleep(2000);
 
-            //generate uniq load_priority
-            while (numArray.get(i) == load_priority){
-                load_priority = random.nextInt(diff + 1);
-                load_priority += a;
-            }
-
-            //add to numlist
-            numArray.add(load_priority);
-            getContext().getLog().info(" Gen new priority: {}", numArray.get(i));
-            i++;
-            //replyTo.tell(new PiCalculator.PiCalc(load_priority));
             List<ActorRef<PiCalculator.Command>> replyTo = command.replyTo;
             for (int i1 = 0; i1 < replyTo.size(); i1++) {
+                //getContext().getLog().info(" Gen new priority: {}", i1 + 1);
                 ActorRef<PiCalculator.Command> commandActorRef = replyTo.get(i1);
-                commandActorRef.tell(new PiCalculator.PiCalc(i1+1));
-            }
-            //command.replyTo.forEach(actor -> actor.tell(PiCalculator.PiCalculatorCommand.START_CALC));
-        }
-        //return this;
-    }
+                commandActorRef.tell(new PiCalculator.PiCalc(i1 + 1));
 
+            }
+        }
+    }
 }

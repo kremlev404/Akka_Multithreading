@@ -10,15 +10,7 @@ import akka.actor.typed.javadsl.Receive;
 public class PiCalculator extends AbstractBehavior<PiCalculator.Command> {
 
     //
-    private long dt = 1000;
-    private long countEnd = 10;
     //private List<Integer> numArray= new ArrayList<Integer>();
-    public static Double eps = 1E-8;
-    public static Double monte_pi = 0.0;
-    public static Double n = 1.0;
-    public static Double member = 1.0;
-    public static double start_monte = 0D;
-    public static Double time_tooked_monte = 0D;
     private ActorRef<ConsolePrinter.Command> printer;
 
     //
@@ -66,7 +58,8 @@ public class PiCalculator extends AbstractBehavior<PiCalculator.Command> {
     private Behavior<Command> onCalcStat(PiCalc command) {
         getContext().getLog().info("{}", command.numArray);
         int numArray = command.numArray;
-        StringBuilder stringBuilder = new StringBuilder();
+
+        double eps = 0D;
         //
         //Pi calculating by Monte
         switch (numArray) {
@@ -89,30 +82,25 @@ public class PiCalculator extends AbstractBehavior<PiCalculator.Command> {
                 break;
 
         }
-        stringBuilder.append("Monte Carlo Method, Load Priority: ").append(numArray);
-        stringBuilder.append("Calculating Pi with a given EPS ( ").append(eps);
 
-        calculate_monte();
-
-        stringBuilder.append(" ): ").append(monte_pi).append(" took ").append(time_tooked_monte).append("sec.");
-        stringBuilder.append("\n");
-
-        refresh();
-
-        printer.tell(new ConsolePrinter.Print(stringBuilder.toString()));
-        return this;
-    }
-
-    //
-    private Behavior<Command> onSay() {
-        getContext().getLog().info("I passed the message");
+        calculate_monte(eps);
+        //refresh();
         return this;
     }
 
     //Monte help method
-    private static void calculate_monte(){
-        start_monte = 0D;
-        start_monte = System.nanoTime();
+    private void calculate_monte(double eps){
+        Double monte_pi = 0.0;
+        Double n = 1.0;
+        Double member = 1.0;
+        Double start_monte = 0D;
+        Double time_tooked_monte = 0D;
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("Monte Carlo Method, Calculating Pi with a given EPS ( ").append(eps);
+        
+        start_monte = ((double) System.nanoTime());
         while (eps < Math.abs(member)) {
             monte_pi += member;
             member = ((Math.pow(-1, n)) * (1 / ((2 * n) + 1)));
@@ -120,16 +108,11 @@ public class PiCalculator extends AbstractBehavior<PiCalculator.Command> {
         }
         monte_pi = monte_pi * 4;
         time_tooked_monte = (double) ((System.nanoTime() - start_monte) / 1000000 / 1e3);
+        stringBuilder.append(" ): ").append(monte_pi).append(" took ").append(time_tooked_monte).append("sec.");
+        stringBuilder.append("\n");
+
+        printer.tell(new ConsolePrinter.Print(stringBuilder.toString()));
     }
 
-    //Monte - refresh method
-    public static void refresh(){
-        eps= 1E-8;
-        monte_pi= 0.0;
-        n = 1.0;
-        member = 1.0;
-        start_monte = 0D;
-        time_tooked_monte= 0D;
-    }
 }
 
