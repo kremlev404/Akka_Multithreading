@@ -1,4 +1,4 @@
 # Akka_Multithreading
 
-### Results
-![Alt text](https://github.com/kremlev404/Akka_Multithreading/blob/master/1.png "Optional title")
+### Results ( 15shki** )
+![Alt text](https://github.com/kremlev404/New_C_project/blob/master/1.mp4 "Optional title")
